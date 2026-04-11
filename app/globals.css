@@ -1,26 +1,125 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* Surface hierarchy */
+  --color-surface: #0e0e0e;
+  --color-surface-dim: #0e0e0e;
+  --color-surface-bright: #2c2c2c;
+  --color-surface-container: #1a1919;
+  --color-surface-container-low: #131313;
+  --color-surface-container-high: #201f1f;
+  --color-surface-container-highest: #262626;
+  --color-surface-container-lowest: #000000;
+  --color-surface-variant: #262626;
+  --color-surface-tint: #b6a0ff;
+  --color-background: #0e0e0e;
+
+  /* Primary */
+  --color-primary: #b6a0ff;
+  --color-primary-dim: #7e51ff;
+  --color-primary-container: #a98fff;
+  --color-primary-fixed: #a98fff;
+  --color-primary-fixed-dim: #9c7eff;
+  --color-on-primary: #340090;
+  --color-on-primary-container: #280072;
+  --color-on-primary-fixed: #000000;
+  --color-on-primary-fixed-variant: #32008a;
+  --color-inverse-primary: #6836e8;
+
+  /* Secondary */
+  --color-secondary: #00fc40;
+  --color-secondary-dim: #00ec3b;
+  --color-secondary-container: #006e16;
+  --color-secondary-fixed: #00fc40;
+  --color-secondary-fixed-dim: #00ec3b;
+  --color-on-secondary: #005a10;
+  --color-on-secondary-container: #e6ffdc;
+  --color-on-secondary-fixed: #00440a;
+  --color-on-secondary-fixed-variant: #006513;
+
+  /* Tertiary */
+  --color-tertiary: #ac89ff;
+  --color-tertiary-dim: #874cff;
+  --color-tertiary-container: #7000ff;
+  --color-tertiary-fixed: #bda1ff;
+  --color-tertiary-fixed-dim: #b190ff;
+  --color-on-tertiary: #290067;
+  --color-on-tertiary-container: #f8f1ff;
+  --color-on-tertiary-fixed: #1f0052;
+  --color-on-tertiary-fixed-variant: #4700a7;
+
+  /* Error */
+  --color-error: #ff6e84;
+  --color-error-dim: #d73357;
+  --color-error-container: #a70138;
+  --color-on-error: #490013;
+  --color-on-error-container: #ffb2b9;
+
+  /* On Surface */
+  --color-on-surface: #ffffff;
+  --color-on-surface-variant: #adaaaa;
+  --color-on-background: #ffffff;
+  --color-inverse-surface: #fcf8f8;
+  --color-inverse-on-surface: #565554;
+
+  /* Outline */
+  --color-outline: #777575;
+  --color-outline-variant: #494847;
+
+  /* Border radius - 0px for brutalist aesthetic */
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+  --radius-2xl: 0px;
+  --radius-3xl: 0px;
+  --radius-4xl: 0px;
+
+  /* Fonts */
+  --font-headline: "Space Grotesk", sans-serif;
+  --font-body: "Space Grotesk", sans-serif;
+  --font-label: "Space Mono", monospace;
+  --font-mono: "Space Mono", monospace;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* Kinetic Oracle textures */
+.kinetic-flare {
+  background: radial-gradient(
+    circle at 0% 0%,
+    rgba(79, 0, 208, 0.15) 0%,
+    transparent 50%
+  );
+}
+
+.scanlines {
+  background: linear-gradient(
+    to bottom,
+    transparent 50%,
+    rgba(0, 0, 0, 0.2) 50%
+  );
+  background-size: 100% 4px;
+}
+
+.grid-bg {
+  background-image: linear-gradient(
+      rgba(79, 0, 208, 0.05) 1px,
+      transparent 1px
+    ),
+    linear-gradient(90deg, rgba(79, 0, 208, 0.05) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+.hard-shadow-primary {
+  box-shadow: 8px 8px 0px rgba(79, 0, 208, 0.2);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-background);
+  color: var(--color-on-surface);
+  overflow-x: hidden;
+}
+
+::selection {
+  background: var(--color-primary-dim);
+  color: white;
 }
