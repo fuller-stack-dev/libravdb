@@ -54,7 +54,7 @@ export function Features() {
           {features.map((feature) => (
             <div
               key={feature.metric}
-              className={`p-12 bg-surface hover:bg-surface-container-high transition-all group relative overflow-hidden ${feature.borderClasses}`}
+              className={`p-12 bg-surface hover:bg-surface-container-high transition-all group relative overflow-hidden flex flex-col ${feature.borderClasses}`}
             >
               <div className="absolute top-0 left-0 w-1 h-full bg-primary-dim scale-y-0 group-hover:scale-y-100 transition-transform origin-top" />
               <div className="mb-10 text-primary-dim">
@@ -65,13 +65,13 @@ export function Features() {
               <div className="font-mono text-[10px] text-zinc-500 mb-2 uppercase tracking-tighter">
                 {feature.metric}
               </div>
-              <h3 className="font-headline text-2xl font-bold text-white mb-4 uppercase">
+              <h3 className="font-headline text-2xl font-bold text-white mb-4 uppercase min-h-[4rem]">
                 {feature.title}
               </h3>
-              <p className="text-zinc-400 text-sm leading-relaxed mb-6 font-mono">
+              <p className="text-zinc-400 text-sm leading-relaxed mb-6 font-mono min-h-[7rem]">
                 {feature.description}
               </p>
-              <div className="text-secondary text-xs font-mono uppercase tracking-widest">
+              <div className="text-secondary text-xs font-mono uppercase tracking-widest mt-auto">
                 Status: {feature.status}
               </div>
             </div>

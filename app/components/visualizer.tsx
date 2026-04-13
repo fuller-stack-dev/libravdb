@@ -1,216 +1,40 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
-const STAGES = ["INGEST", "RANK", "COMPACT", "RECALL"] as const;
-const SCOPES = ["SESSION", "USER", "GLOBAL"] as const;
-const SCOPE_COLORS = ["#00fc40", "#b6a0ff", "#7e51ff"];
+const STAGES = [
+  { id: "INGEST", num: "01", desc: "Gate & embed incoming context" },
+  { id: "RANK", num: "02", desc: "Score relevance via cosine distance" },
+  { id: "COMPACT", num: "03", desc: "Geometry-grounded compaction" },
+  { id: "RECALL", num: "04", desc: "Retrieve ranked memory shards" },
+] as const;
 
-interface Particle {
-  x: number;
-  y: number;
-  stage: number; // 0-3
-  progress: number; // 0-1 within stage transition
-  scope: number; // 0-2
-  speed: number;
-  size: number;
-  alive: boolean;
+const SCOPES = [
+  { label: "SESSION", color: "#00fc40" },
+  { label: "USER", color: "#b6a0ff" },
+  { label: "GLOBAL", color: "#7e51ff" },
+] as const;
+
+function useCounter(max: number, interval: number) {
+  const [val, setVal] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setVal((v) => (v + 1) % max), interval);
+    return () => clearInterval(id);
+  }, [max, interval]);
+  return val;
 }
 
 export function Visualizer() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const particles = useRef<Particle[]>([]);
-  const frameRef = useRef(0);
-  const rafRef = useRef(0);
+  const activeStage = useCounter(4, 2000);
+  const [memCount, setMemCount] = useState(42);
+  const tickRef = useRef(0);
 
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    const resize = () => {
-      const dpr = window.devicePixelRatio || 1;
-      const rect = canvas.getBoundingClientRect();
-      canvas.width = rect.width * dpr;
-      canvas.height = rect.height * dpr;
-      ctx.scale(dpr, dpr);
-    };
-    resize();
-    window.addEventListener("resize", resize);
-
-    const draw = () => {
-      const rect = canvas.getBoundingClientRect();
-      const w = rect.width;
-      const h = rect.height;
-      ctx.clearRect(0, 0, w, h);
-
-      frameRef.current++;
-
-      // Layout: 4 stage nodes arranged in a flow
-      const padX = 60;
-      const padY = 60;
-      const stagePositions = [
-        { x: padX, y: padY }, // INGEST - top left
-        { x: w - padX, y: padY + 40 }, // RANK - top right
-        { x: w - padX - 20, y: h - padY - 20 }, // COMPACT - bottom right
-        { x: padX + 20, y: h - padY }, // RECALL - bottom left
-      ];
-
-      // Draw scope rings in the center
-      const cx = w / 2;
-      const cy = h / 2;
-      const maxR = Math.min(w, h) * 0.28;
-
-      for (let i = SCOPES.length - 1; i >= 0; i--) {
-        const r = maxR * ((i + 1) / SCOPES.length);
-        ctx.beginPath();
-        ctx.arc(cx, cy, r, 0, Math.PI * 2);
-        ctx.strokeStyle = SCOPE_COLORS[i];
-        ctx.globalAlpha = 0.08 + i * 0.03;
-        ctx.lineWidth = 1;
-        ctx.setLineDash([4, 6]);
-        ctx.stroke();
-        ctx.setLineDash([]);
-
-        // Scope label
-        ctx.globalAlpha = 0.3;
-        ctx.font = "9px monospace";
-        ctx.fillStyle = SCOPE_COLORS[i];
-        ctx.textAlign = "center";
-        ctx.fillText(SCOPES[i], cx, cy - r + 12);
-      }
-
-      ctx.globalAlpha = 1;
-
-      // Draw flow paths between stages
-      ctx.setLineDash([2, 4]);
-      ctx.lineWidth = 1;
-      for (let i = 0; i < 4; i++) {
-        const from = stagePositions[i];
-        const to = stagePositions[(i + 1) % 4];
-        const midX = cx + (cx - (from.x + to.x) / 2) * -0.3;
-        const midY = cy + (cy - (from.y + to.y) / 2) * -0.3;
-
-        ctx.beginPath();
-        ctx.moveTo(from.x, from.y);
-        ctx.quadraticCurveTo(midX, midY, to.x, to.y);
-        ctx.strokeStyle = "rgba(79, 0, 208, 0.15)";
-        ctx.stroke();
-      }
-      ctx.setLineDash([]);
-
-      // Draw stage nodes
-      for (let i = 0; i < 4; i++) {
-        const pos = stagePositions[i];
-        const pulse = Math.sin(frameRef.current * 0.03 + i * 1.5) * 0.3 + 0.7;
-
-        // Node glow
-        const grad = ctx.createRadialGradient(pos.x, pos.y, 0, pos.x, pos.y, 30);
-        grad.addColorStop(0, `rgba(126, 81, 255, ${0.15 * pulse})`);
-        grad.addColorStop(1, "transparent");
-        ctx.fillStyle = grad;
-        ctx.fillRect(pos.x - 30, pos.y - 30, 60, 60);
-
-        // Node square
-        ctx.fillStyle = `rgba(14, 14, 14, 0.9)`;
-        ctx.fillRect(pos.x - 16, pos.y - 16, 32, 32);
-        ctx.strokeStyle = `rgba(182, 160, 255, ${0.4 + pulse * 0.3})`;
-        ctx.lineWidth = 1;
-        ctx.strokeRect(pos.x - 16, pos.y - 16, 32, 32);
-
-        // Node label
-        ctx.fillStyle = `rgba(182, 160, 255, ${0.6 + pulse * 0.3})`;
-        ctx.font = "bold 7px monospace";
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillText(STAGES[i], pos.x, pos.y);
-
-        // Stage number
-        ctx.fillStyle = "rgba(0, 252, 64, 0.5)";
-        ctx.font = "7px monospace";
-        ctx.fillText(`0${i + 1}`, pos.x, pos.y - 24);
-      }
-
-      // Spawn particles
-      if (frameRef.current % 12 === 0) {
-        const scope = Math.floor(Math.random() * 3);
-        particles.current.push({
-          x: stagePositions[0].x,
-          y: stagePositions[0].y,
-          stage: 0,
-          progress: 0,
-          scope,
-          speed: 0.006 + Math.random() * 0.006,
-          size: 2 + Math.random() * 2,
-          alive: true,
-        });
-      }
-
-      // Update and draw particles
-      for (const p of particles.current) {
-        p.progress += p.speed;
-
-        if (p.progress >= 1) {
-          p.progress = 0;
-          p.stage++;
-          if (p.stage >= 4) {
-            // Particle completed the cycle - on RECALL, some get compacted (shrink and fade)
-            p.alive = false;
-            continue;
-          }
-        }
-
-        const from = stagePositions[p.stage];
-        const to = stagePositions[(p.stage + 1) % 4];
-        const midX = cx + (cx - (from.x + to.x) / 2) * -0.3;
-        const midY = cy + (cy - (from.y + to.y) / 2) * -0.3;
-
-        // Quadratic bezier interpolation
-        const t = p.progress;
-        const mt = 1 - t;
-        p.x = mt * mt * from.x + 2 * mt * t * midX + t * t * to.x;
-        p.y = mt * mt * from.y + 2 * mt * t * midY + t * t * to.y;
-
-        // Compact stage: particles shrink
-        const shrink = p.stage === 2 ? 1 - p.progress * 0.5 : 1;
-        const particleSize = p.size * shrink;
-
-        // Glow
-        const pGrad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, particleSize * 4);
-        pGrad.addColorStop(0, `${SCOPE_COLORS[p.scope]}33`);
-        pGrad.addColorStop(1, "transparent");
-        ctx.fillStyle = pGrad;
-        ctx.fillRect(p.x - particleSize * 4, p.y - particleSize * 4, particleSize * 8, particleSize * 8);
-
-        // Core
-        ctx.beginPath();
-        ctx.rect(p.x - particleSize / 2, p.y - particleSize / 2, particleSize, particleSize);
-        ctx.fillStyle = SCOPE_COLORS[p.scope];
-        ctx.globalAlpha = 0.8;
-        ctx.fill();
-        ctx.globalAlpha = 1;
-      }
-
-      // Remove dead particles
-      particles.current = particles.current.filter((p) => p.alive);
-
-      // Status text
-      ctx.fillStyle = "rgba(100, 100, 100, 0.4)";
-      ctx.font = "9px monospace";
-      ctx.textAlign = "left";
-      ctx.textBaseline = "bottom";
-      ctx.fillText(`[ACTIVE_MEMORIES: ${particles.current.length}]`, 12, h - 24);
-      ctx.fillText(`[CYCLE: ${Math.floor(frameRef.current / 60)}]`, 12, h - 12);
-
-      rafRef.current = requestAnimationFrame(draw);
-    };
-
-    rafRef.current = requestAnimationFrame(draw);
-    return () => {
-      window.removeEventListener("resize", resize);
-      cancelAnimationFrame(rafRef.current);
-    };
+    const id = setInterval(() => {
+      tickRef.current++;
+      setMemCount(38 + Math.floor(Math.random() * 20));
+    }, 3000);
+    return () => clearInterval(id);
   }, []);
 
   return (
@@ -220,15 +44,140 @@ export function Visualizer() {
           {/* Visualization */}
           <div className="relative order-2 lg:order-1">
             <div className="absolute -inset-10 bg-primary/10 blur-[100px] rounded-full" />
-            <div className="relative bg-surface-container-highest p-4 hard-shadow-primary border border-primary/20 aspect-square flex items-center justify-center">
-              <canvas
-                ref={canvasRef}
-                className="w-full h-full"
-                style={{ imageRendering: "auto" }}
-              />
-            </div>
-            <div className="absolute -top-4 -right-4 bg-surface px-3 py-1 border border-secondary text-secondary font-mono text-[10px] tracking-widest uppercase">
-              Pipeline_Monitor
+            <div className="relative bg-surface-container-highest border border-primary/20 hard-shadow-primary overflow-hidden">
+              {/* Header bar */}
+              <div className="flex items-center justify-between px-5 py-3 border-b border-outline-variant/20 bg-surface-container-low">
+                <div className="flex items-center gap-3">
+                  <div className="w-2 h-2 bg-error" />
+                  <div className="w-2 h-2 bg-secondary" />
+                  <div className="w-2 h-2 bg-primary" />
+                </div>
+                <span className="font-mono text-[10px] text-primary tracking-widest uppercase">
+                  Pipeline_Monitor
+                </span>
+              </div>
+
+              {/* Pipeline stages */}
+              <div className="p-6">
+                <div className="flex flex-col gap-0">
+                  {STAGES.map((stage, i) => (
+                    <div key={stage.id}>
+                      {/* Stage row */}
+                      <div
+                        className="flex items-stretch gap-4 transition-all duration-500"
+                        style={{
+                          opacity: activeStage === i ? 1 : 0.4,
+                        }}
+                      >
+                        {/* Number column */}
+                        <div className="w-10 flex-shrink-0 flex flex-col items-center">
+                          <span
+                            className="font-mono text-[10px] transition-colors duration-500"
+                            style={{
+                              color:
+                                activeStage === i ? "#00fc40" : "#494847",
+                            }}
+                          >
+                            {stage.num}
+                          </span>
+                        </div>
+
+                        {/* Stage box */}
+                        <div
+                          className="flex-1 border p-4 transition-all duration-500"
+                          style={{
+                            borderColor:
+                              activeStage === i
+                                ? "rgba(182, 160, 255, 0.5)"
+                                : "rgba(73, 72, 71, 0.3)",
+                            backgroundColor:
+                              activeStage === i
+                                ? "rgba(126, 81, 255, 0.06)"
+                                : "transparent",
+                            boxShadow:
+                              activeStage === i
+                                ? "0 0 20px rgba(126, 81, 255, 0.1)"
+                                : "none",
+                          }}
+                        >
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="font-mono text-sm font-bold tracking-widest text-white">
+                              {stage.id}
+                            </span>
+                            {activeStage === i && (
+                              <span className="font-mono text-[9px] text-secondary tracking-wider animate-pulse">
+                                ACTIVE
+                              </span>
+                            )}
+                          </div>
+                          <span className="font-mono text-[11px] text-on-surface-variant">
+                            {stage.desc}
+                          </span>
+
+                          {/* Progress bar for active stage */}
+                          <div className="mt-3 h-[2px] bg-outline-variant/20 overflow-hidden">
+                            <div
+                              className="h-full transition-all duration-500"
+                              style={{
+                                width: activeStage === i ? "100%" : "0%",
+                                background:
+                                  activeStage === i
+                                    ? "linear-gradient(90deg, #7e51ff, #b6a0ff, #00fc40)"
+                                    : "transparent",
+                                transition: activeStage === i
+                                  ? "width 1.8s ease-in-out"
+                                  : "width 0.3s ease",
+                              }}
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Connector */}
+                      {i < STAGES.length - 1 && (
+                        <div className="flex items-center gap-4 h-4">
+                          <div className="w-10 flex-shrink-0 flex justify-center">
+                            <div
+                              className="w-[1px] h-full transition-colors duration-500"
+                              style={{
+                                backgroundColor:
+                                  activeStage === i
+                                    ? "rgba(182, 160, 255, 0.4)"
+                                    : "rgba(73, 72, 71, 0.2)",
+                              }}
+                            />
+                          </div>
+                          <div className="flex-1 flex items-center">
+                            <svg width="12" height="16" viewBox="0 0 12 16" className="opacity-20">
+                              <path d="M6 0 L6 12 L2 8 M6 12 L10 8" stroke="#b6a0ff" fill="none" strokeWidth="1" />
+                            </svg>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+
+                {/* Footer: Scope indicators + stats */}
+                <div className="mt-6 pt-4 border-t border-outline-variant/20 flex items-center justify-between">
+                  <div className="flex items-center gap-5">
+                    {SCOPES.map((scope) => (
+                      <div key={scope.label} className="flex items-center gap-2">
+                        <div
+                          className="w-2 h-2"
+                          style={{ backgroundColor: scope.color }}
+                        />
+                        <span className="font-mono text-[9px] uppercase tracking-wider text-on-surface-variant">
+                          {scope.label}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="font-mono text-[9px] text-on-surface-variant/50">
+                    [ACTIVE_MEMORIES: {memCount}]
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 

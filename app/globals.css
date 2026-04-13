@@ -123,3 +123,91 @@ body {
   background: var(--color-primary-dim);
   color: white;
 }
+
+@keyframes chrome-flow {
+  0% {
+    background-position: 200% 50%;
+  }
+  100% {
+    background-position: -200% 50%;
+  }
+}
+
+.purple-chrome {
+  background: linear-gradient(
+    90deg,
+    #6a3de8 0%,
+    #8b6aff 8%,
+    #f0e6ff 14%,
+    #ffffff 17%,
+    #d8c4ff 22%,
+    #7e51ff 30%,
+    #5a1fff 40%,
+    #7e51ff 48%,
+    #c9b3ff 55%,
+    #ffffff 58%,
+    #e8dcff 62%,
+    #9c7eff 70%,
+    #5a1fff 80%,
+    #8b6aff 90%,
+    #6a3de8 100%
+  );
+  background-size: 200% 100%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: chrome-flow 12s linear infinite;
+}
+
+@keyframes scroll-left {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-scroll {
+  animation: scroll-left 20s linear infinite;
+}
+
+.mask-fade {
+  mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    black 10%,
+    black 90%,
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    black 10%,
+    black 90%,
+    transparent 100%
+  );
+}
+
+.purple-chrome-border {
+  background: linear-gradient(
+    90deg,
+    #6a3de8 0%,
+    #8b6aff 8%,
+    #f0e6ff 14%,
+    #ffffff 17%,
+    #d8c4ff 22%,
+    #7e51ff 30%,
+    #5a1fff 40%,
+    #7e51ff 48%,
+    #c9b3ff 55%,
+    #ffffff 58%,
+    #e8dcff 62%,
+    #9c7eff 70%,
+    #5a1fff 80%,
+    #8b6aff 90%,
+    #6a3de8 100%
+  );
+  background-size: 200% 100%;
+  animation: chrome-flow 12s linear infinite;
+}
