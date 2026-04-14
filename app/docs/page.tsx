@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Version } from "../components/version";
 
 const sections = [
   {
@@ -7,17 +8,12 @@ const sections = [
     content: [
       {
         type: "text" as const,
-        body: "Get LibraVDB running in under a minute. Two commands, zero cloud dependencies.",
+        body: "Get LibraVDB running in under a minute. One command, zero cloud dependencies.",
       },
       {
         type: "code" as const,
-        label: "Install the Go sidecar via Homebrew",
-        code: "brew install openclaw/tap/libravdbd",
-      },
-      {
-        type: "code" as const,
-        label: "Install the OpenClaw plugin",
-        code: "openclaw plugins install @xdarkicex/openclaw-memory-libravdb",
+        label: "One-line bootstrap (installs daemon, plugin, and restarts gateway)",
+        code: "curl -fsSL https://raw.githubusercontent.com/xDarkicex/openclaw-memory-libravdb/main/install.sh | bash",
       },
       {
         type: "text" as const,
@@ -185,7 +181,7 @@ export default function DocsPage() {
             </h1>
             <p className="text-zinc-500 font-mono text-sm mb-20 max-w-2xl">
               Installation, architecture, and configuration reference for
-              LibraVDB v1.4.3.
+              LibraVDB <Version />.
             </p>
 
             <div className="space-y-24">

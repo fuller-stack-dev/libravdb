@@ -22,7 +22,7 @@ const faqs = [
   {
     question: "How do I install it?",
     answer:
-      'Two commands: "brew install openclaw/tap/libravdbd" for the Go sidecar, then "openclaw plugins install @xdarkicex/openclaw-memory-libravdb" for the TypeScript plugin. No account or API key required.',
+      'One command: \"curl -fsSL https://raw.githubusercontent.com/xDarkicex/openclaw-memory-libravdb/main/install.sh | bash\" — it installs the Go sidecar, the OpenClaw plugin, and restarts the gateway. No account or API key required.',
   },
   {
     question: "What is the Go sidecar?",

@@ -1,3 +1,5 @@
+import { Version } from "../components/version";
+
 const benchmarks = [
   {
     label: "Embedding Latency",
@@ -160,7 +162,7 @@ export default function BenchmarksPage() {
 
         {/* Footnote */}
         <div className="mt-12 font-mono text-[10px] text-zinc-600 uppercase tracking-widest">
-          All benchmarks measured with v1.4.3 // Results vary by hardware
+          All benchmarks measured with <Version /> // Results vary by hardware
         </div>
       </div>
     </section>

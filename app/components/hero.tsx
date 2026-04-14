@@ -1,7 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useVersion } from "../hooks/use-version";
 
 const GRID_SIZE = 40;
 const EFFECT_RADIUS = 200;
@@ -13,6 +14,8 @@ export function Hero() {
   const mouseRef = useRef({ x: -9999, y: -9999, active: false });
   const smoothMouse = useRef({ x: -9999, y: -9999 });
   const rafRef = useRef<number>(0);
+  const [copied, setCopied] = useState(false);
+  const version = useVersion();
 
   const draw = useCallback(() => {
     const canvas = canvasRef.current;
@@ -171,7 +174,7 @@ export function Hero() {
       ref={sectionRef}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      className="relative h-[calc(100vh-80px)] flex flex-col items-center justify-center px-6 bg-surface"
+      className="relative h-[calc(100vh-80px)] flex flex-col items-center justify-center px-6 pt-0 pb-24 bg-surface"
     >
       <canvas
         ref={canvasRef}
@@ -207,33 +210,37 @@ export function Hero() {
           </span>
         </h1>
 
-        <div className="max-w-2xl mx-auto bg-surface-container-lowest border border-outline-variant/30 p-4 font-mono text-left mb-10 scanlines">
+        <div className="max-w-2xl mx-auto bg-surface-container-lowest border border-outline-variant/30 p-4 font-mono text-left mb-10 scanlines relative group">
           <div className="flex gap-2 mb-2">
             <div className="w-2 h-2 bg-error" />
             <div className="w-2 h-2 bg-secondary" />
             <div className="w-2 h-2 bg-primary" />
           </div>
           <div className="text-xs text-secondary-dim/70 mb-1">
-            LIBRAVDB_MEMORY_v1.4.3 — SIDECAR CONNECTED
+            LIBRAVDB_MEMORY_{version} — ONE-LINE BOOTSTRAP
           </div>
-          <div className="text-sm">
-            <span className="text-secondary-dim">$</span>{" "}
-            <span className="text-on-surface">
-              brew install openclaw/tap/libravdbd
-            </span>
-            <br />
-            <span className="text-secondary-dim">$</span>{" "}
-            <span className="text-on-surface">
-              openclaw plugins install @xdarkicex/openclaw-memory-libravdb
-            </span>
-            <br />
-            <span className="text-primary-dim">[ONLINE]</span>{" "}
-            <span className="text-on-surface">
-              Memory sidecar ready. 3-tier scopes active.
-            </span>
-            <br />
-            <span className="text-secondary-dim">$</span>{" "}
-            <span className="animate-pulse">_</span>
+          <div className="text-sm flex items-center gap-2">
+            <div className="flex-1 min-w-0">
+              <span className="text-secondary-dim">$</span>{" "}
+              <span className="text-on-surface break-all">
+                curl -fsSL https://raw.githubusercontent.com/xDarkicex/openclaw-memory-libravdb/main/install.sh | bash
+              </span>
+            </div>
+            <button
+              onClick={() => {
+                navigator.clipboard.writeText(
+                  "curl -fsSL https://raw.githubusercontent.com/xDarkicex/openclaw-memory-libravdb/main/install.sh | bash"
+                );
+                setCopied(true);
+                setTimeout(() => setCopied(false), 2000);
+              }}
+              className="shrink-0 p-1.5 text-zinc-500 hover:text-white transition-colors"
+              aria-label="Copy install command"
+            >
+              <span className="material-symbols-outlined text-base">
+                {copied ? "check" : "content_copy"}
+              </span>
+            </button>
           </div>
         </div>
 
