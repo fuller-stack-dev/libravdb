@@ -1,5 +1,18 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Version } from "../components/version";
+
+export const metadata: Metadata = {
+  title: "Documentation",
+  description:
+    "Installation, architecture, configuration, and scope reference for LibraVDB — the local-first memory engine for OpenClaw.",
+  openGraph: {
+    title: "LibraVDB Documentation",
+    description:
+      "Installation, architecture, and configuration reference for LibraVDB.",
+    url: "https://libravdb.com/docs",
+  },
+};
 
 const sections = [
   {

@@ -1,0 +1,38 @@
+# LibraVDB
+
+> Local-first, three-tier memory engine for the OpenClaw AI assistant.
+
+LibraVDB gives AI persistent, scoped memory across sessions without cloud dependencies. A Go sidecar (libravdbd) handles ONNX embedding, vector storage, and retrieval ranking. A TypeScript plugin integrates directly with OpenClaw.
+
+## Key Facts
+
+- Fully local: all embedding, summarization, and retrieval happen on-device
+- Three-tier scoping: ephemeral, session, and long-term memory
+- Hybrid retrieval: semantic (vector cosine) + keyword (BM25) ranking
+- Embedding model: Nomic Embed v1.5 via ONNX Runtime (~16ms per op)
+- Extractive compaction with T5 summarizer keeps memory lean
+- Go sidecar communicates over local Unix socket
+- Homebrew-managed daemon lifecycle on macOS
+- Plugin declares kind: ["memory", "context-engine"] for dual-slot activation
+
+## Install
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/xDarkicex/openclaw-memory-libravdb/main/install.sh | bash
+```
+
+## Links
+
+- Homepage: https://libravdb.com
+- Documentation: https://libravdb.com/docs
+- FAQ: https://libravdb.com/faq
+- Benchmarks: https://libravdb.com/benchmarks
+- GitHub: https://github.com/xDarkicex/openclaw-memory-libravdb
+- Install Docs: https://github.com/xDarkicex/openclaw-memory-libravdb/blob/main/docs/install.md
+
+## Pages
+
+- /: Landing page with install command, features, and integrations overview
+- /docs: Installation, architecture, configuration, and scope reference
+- /faq: Frequently asked questions about LibraVDB
+- /benchmarks: Performance benchmarks (embedding latency, retrieval, compaction, storage)

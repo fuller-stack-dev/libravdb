@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://libravdb.com/sitemap.xml
+
+# AI agent discovery
+# See /llms.txt for structured project info
+# See /llms-full.txt for detailed reference

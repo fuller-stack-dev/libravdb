@@ -1,0 +1,69 @@
+# LibraVDB — Full Reference
+
+> Local-first, three-tier memory engine for the OpenClaw AI assistant.
+
+## Overview
+
+LibraVDB is a memory plugin for OpenClaw that stores, retrieves, and manages AI conversation memory entirely on-device. It consists of two components:
+
+1. **libravdbd** (Go sidecar) — background daemon handling vector storage, ONNX embedding inference (Nomic Embed v1.5), BM25 keyword indexing, T5 extractive compaction, and the multi-signal retrieval/ranking pipeline.
+2. **@xdarkicex/openclaw-memory-libravdb** (TypeScript plugin) — OpenClaw plugin that communicates with the sidecar over a local Unix socket and owns both the `memory` and `contextEngine` slots.
+
+## Architecture
+
+- Communication: local Unix socket (no network required)
+- Storage: SQLite + HNSW vector index on disk
+- Embedding: Nomic Embed v1.5 via ONNX Runtime (~16ms per operation)
+- Retrieval: hybrid semantic (cosine similarity) + keyword (BM25) with recency decay, scope weighting, and summary quality scoring
+- Compaction: T5 extractive summarizer keeps long-term memory lean
+- Scoping: three tiers — ephemeral (cleared on session end), session (persists per conversation), long-term (persists indefinitely)
+
+## Installation
+
+### One-Line Bootstrap (Recommended)
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/xDarkicex/openclaw-memory-libravdb/main/install.sh | bash
+```
+
+Prerequisites: Homebrew and the `openclaw` CLI must be installed.
+
+The script installs the Homebrew formula, starts the daemon service, installs the OpenClaw plugin, and restarts the gateway.
+
+### Manual Install
+
+```bash
+brew install xDarkicex/openclaw-libravdb-memory/libravdbd
+brew services start libravdbd
+openclaw plugins install @xdarkicex/openclaw-memory-libravdb
+openclaw gateway restart
+```
+
+### Verify
+
+```bash
+openclaw memory status
+```
+
+## Performance Benchmarks
+
+- Embedding latency: ~16ms per operation
+- Retrieval (hybrid search): ~4ms p50
+- Compaction cycle: ~120ms per batch
+- Storage overhead: ~1.2KB per memory entry
+
+## Integrations
+
+- OpenClaw AI assistant
+- Nomic Embed (ONNX Runtime)
+- Homebrew (macOS package management)
+- Go sidecar binary (cross-platform: macOS, Linux, Windows)
+
+## Links
+
+- Homepage: https://libravdb.com
+- Documentation: https://libravdb.com/docs
+- FAQ: https://libravdb.com/faq
+- Benchmarks: https://libravdb.com/benchmarks
+- GitHub Repository: https://github.com/xDarkicex/openclaw-memory-libravdb
+- Releases: https://github.com/xDarkicex/openclaw-memory-libravdb/releases

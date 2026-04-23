@@ -1,3 +1,17 @@
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "FAQ",
+  description:
+    "Frequently asked questions about LibraVDB — installation, embedding models, retrieval, scoping, and local-first architecture.",
+  openGraph: {
+    title: "LibraVDB FAQ",
+    description:
+      "Answers to common questions about LibraVDB memory engine.",
+    url: "https://libravdb.com/faq",
+  },
+};
+
 const faqs = [
   {
     question: "What is LibraVDB?",

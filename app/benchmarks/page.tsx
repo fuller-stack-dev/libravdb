@@ -1,4 +1,17 @@
+import type { Metadata } from "next";
 import { Version } from "../components/version";
+
+export const metadata: Metadata = {
+  title: "Benchmarks",
+  description:
+    "Performance benchmarks for LibraVDB — embedding latency, hybrid retrieval, compaction, and storage overhead.",
+  openGraph: {
+    title: "LibraVDB Benchmarks",
+    description:
+      "Embedding latency, retrieval speed, compaction, and storage benchmarks.",
+    url: "https://libravdb.com/benchmarks",
+  },
+};
 
 const benchmarks = [
   {
